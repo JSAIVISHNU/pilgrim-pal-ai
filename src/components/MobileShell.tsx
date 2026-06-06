@@ -22,12 +22,12 @@ export function MobileShell({ children, title = "Hajj Guide AI" }: { children: R
 
 function BottomNav() {
   const path = useRouterState({ select: (s) => s.location.pathname });
-  const items = [
+  const items: Array<{ to: "/" | "/translate" | "/scan" | "/info"; label: string; icon: typeof Home; primary?: boolean }> = [
     { to: "/", label: "Home", icon: Home },
     { to: "/translate", label: "Translate", icon: Languages },
     { to: "/scan", label: "Scan", icon: ScanLine, primary: true },
     { to: "/info", label: "Info", icon: Info },
-  ] as const;
+  ];
 
   return (
     <nav className="safe-bottom fixed bottom-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 border-t border-border bg-card/95 backdrop-blur">
