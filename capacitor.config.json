@@ -1,6 +1,0 @@
-{
-  "appId": "com.hajjguideai.app",
-  "appName": "Hajj Guide AI",
-  "webDir": "dist/client",
-  "bundledWebRuntime": false
-}

@@ -1,68 +1,33 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-// MyMemory API - Free, no key needed, more reliable
-const MYMEMORY_URL = "https://api.mymemory.translated.net/get";
+const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const MODEL = "google/gemini-3-flash-preview";
 
-// Language code mapping for MyMemory
-const languageMap: Record<string, string> = {
-  "Arabic": "ar",
-  "English": "en",
-  "Spanish": "es",
-  "French": "fr",
-  "German": "de",
-  "Chinese": "zh",
-  "Japanese": "ja",
-  "Hindi": "hi",
-  "Urdu": "ur",
-  "Persian": "fa",
-  "Turkish": "tr",
-  "Indonesian": "id",
-  "Malay": "ms",
-  "Portuguese": "pt",
-  "Russian": "ru",
-  "Italian": "it",
-  "Dutch": "nl",
-  "Polish": "pl",
-  "Swedish": "sv",
-  "Korean": "ko",
-};
+function getKey(): string {
+  const k = process.env.LOVABLE_API_KEY;
+  if (!k) throw new Error("LOVABLE_API_KEY is not configured");
+  return k;
+}
 
-// MyMemory Translation function
-async function translateText_MyMemory(text: string, fromLang: string, toLang: string): Promise<string> {
-  try {
-    const fromCode = languageMap[fromLang] || fromLang.toLowerCase().substring(0, 2);
-    const toCode = languageMap[toLang] || toLang.toLowerCase().substring(0, 2);
-
-    const params = new URLSearchParams({
-      q: text,
-      langpair: `${fromCode}|${toCode}`,
-    });
-
-    const res = await fetch(`${MYMEMORY_URL}?${params.toString()}`, {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-      },
-    });
-
-    if (!res.ok) {
-      throw new Error(`MyMemory error: ${res.status}`);
-    }
-
-    const data = await res.json();
-    
-    if (data.responseStatus === 200) {
-      return data.responseData.translatedText || "";
-    } else if (data.responseStatus === 400) {
-      throw new Error("Invalid language pair or text");
-    } else {
-      throw new Error(`API returned status: ${data.responseStatus}`);
-    }
-  } catch (error) {
-    console.error("MyMemory translation failed:", error);
-    throw new Error(`Translation failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+async function chat(messages: Array<{ role: string; content: unknown }>) {
+  const key = getKey();
+  const res = await fetch(GATEWAY_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ model: MODEL, messages }),
+  });
+  if (!res.ok) {
+    const t = await res.text();
+    if (res.status === 429) throw new Error("Rate limit reached. Please wait a moment.");
+    if (res.status === 402) throw new Error("AI credits exhausted. Please add credits to continue.");
+    throw new Error(`Translation failed: ${res.status} ${t}`);
   }
+  const data = await res.json();
+  return (data.choices?.[0]?.message?.content as string) ?? "";
 }
 
 export const translateText = createServerFn({ method: "POST" })
@@ -74,8 +39,14 @@ export const translateText = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
-    const translation = await translateText_MyMemory(data.text, data.from, data.to);
-    return { translation: translation.trim() };
+    const sys =
+      "You are a professional translator for Hajj and Umrah pilgrims. Translate the user's text accurately and naturally. Respond with ONLY the translated text, no explanations, no quotes, no prefixes.";
+    const user = `Translate from ${data.from} to ${data.to}:\n\n${data.text}`;
+    const out = await chat([
+      { role: "system", content: sys },
+      { role: "user", content: user },
+    ]);
+    return { translation: out.trim() };
   });
 
 export const translateImage = createServerFn({ method: "POST" })
@@ -86,7 +57,24 @@ export const translateImage = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
-    // Note: OCR needs to be implemented on client-side with Tesseract.js
-    // This is a placeholder. See scan.tsx for client-side OCR implementation
-    throw new Error("Image translation requires client-side OCR. Please see scan page for updated implementation.");
+    const sys =
+      "You read signs, instruction boards, and documents for Hajj/Umrah pilgrims. Extract ALL readable text from the image, then translate it into the target language. Respond as strict JSON: {\"original\": string, \"translation\": string}. No markdown, no code fences.";
+    const out = await chat([
+      { role: "system", content: sys },
+      {
+        role: "user",
+        content: [
+          { type: "text", text: `Target language: ${data.to}. Extract text and translate.` },
+          { type: "image_url", image_url: { url: data.imageDataUrl } },
+        ],
+      },
+    ]);
+    let parsed: { original: string; translation: string } = { original: "", translation: out };
+    try {
+      const cleaned = out.replace(/```json|```/g, "").trim();
+      parsed = JSON.parse(cleaned);
+    } catch {
+      // fallback: whole text as translation
+    }
+    return parsed;
   });

@@ -10,13 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TranslateRouteImport } from './routes/translate'
-import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ScanRouteImport } from './routes/scan'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as LoginRouteImport } from './routes/login'
 import { Route as InfoRouteImport } from './routes/info'
-import { Route as HelpRouteImport } from './routes/help'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TranslateRoute = TranslateRouteImport.update({
@@ -24,39 +19,14 @@ const TranslateRoute = TranslateRouteImport.update({
   path: '/translate',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ScanRoute = ScanRouteImport.update({
   id: '/scan',
   path: '/scan',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const InfoRoute = InfoRouteImport.update({
   id: '/info',
   path: '/info',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HelpRoute = HelpRouteImport.update({
-  id: '/help',
-  path: '/help',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -67,83 +37,35 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/help': typeof HelpRoute
   '/info': typeof InfoRoute
-  '/login': typeof LoginRoute
-  '/profile': typeof ProfileRoute
   '/scan': typeof ScanRoute
-  '/settings': typeof SettingsRoute
   '/translate': typeof TranslateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/help': typeof HelpRoute
   '/info': typeof InfoRoute
-  '/login': typeof LoginRoute
-  '/profile': typeof ProfileRoute
   '/scan': typeof ScanRoute
-  '/settings': typeof SettingsRoute
   '/translate': typeof TranslateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/help': typeof HelpRoute
   '/info': typeof InfoRoute
-  '/login': typeof LoginRoute
-  '/profile': typeof ProfileRoute
   '/scan': typeof ScanRoute
-  '/settings': typeof SettingsRoute
   '/translate': typeof TranslateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/about'
-    | '/help'
-    | '/info'
-    | '/login'
-    | '/profile'
-    | '/scan'
-    | '/settings'
-    | '/translate'
+  fullPaths: '/' | '/info' | '/scan' | '/translate'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/about'
-    | '/help'
-    | '/info'
-    | '/login'
-    | '/profile'
-    | '/scan'
-    | '/settings'
-    | '/translate'
-  id:
-    | '__root__'
-    | '/'
-    | '/about'
-    | '/help'
-    | '/info'
-    | '/login'
-    | '/profile'
-    | '/scan'
-    | '/settings'
-    | '/translate'
+  to: '/' | '/info' | '/scan' | '/translate'
+  id: '__root__' | '/' | '/info' | '/scan' | '/translate'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
-  HelpRoute: typeof HelpRoute
   InfoRoute: typeof InfoRoute
-  LoginRoute: typeof LoginRoute
-  ProfileRoute: typeof ProfileRoute
   ScanRoute: typeof ScanRoute
-  SettingsRoute: typeof SettingsRoute
   TranslateRoute: typeof TranslateRoute
 }
 
@@ -156,13 +78,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TranslateRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/scan': {
       id: '/scan'
       path: '/scan'
@@ -170,39 +85,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ScanRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/info': {
       id: '/info'
       path: '/info'
       fullPath: '/info'
       preLoaderRoute: typeof InfoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/help': {
-      id: '/help'
-      path: '/help'
-      fullPath: '/help'
-      preLoaderRoute: typeof HelpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -217,25 +104,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
-  HelpRoute: HelpRoute,
   InfoRoute: InfoRoute,
-  LoginRoute: LoginRoute,
-  ProfileRoute: ProfileRoute,
   ScanRoute: ScanRoute,
-  SettingsRoute: SettingsRoute,
   TranslateRoute: TranslateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
